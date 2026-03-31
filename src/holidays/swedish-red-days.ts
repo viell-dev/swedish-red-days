@@ -120,9 +120,7 @@ export function getSwedishRedDaysForRange(
     }
   }
 
-  if (skipWeekends) {
-    return holidays.filter((h) => h.date.dayOfWeek <= 5);
-  }
+  const filteredHolidays = skipWeekends ? holidays.filter((h) => h.date.dayOfWeek <= 5) : holidays;
 
-  return holidays;
+  return filteredHolidays.sort((left, right) => Temporal.PlainDate.compare(left.date, right.date));
 }

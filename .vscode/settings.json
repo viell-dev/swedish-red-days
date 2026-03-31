@@ -17,7 +17,8 @@
     "VCALENDAR",
     "VEVENT",
     "ical",
-    "oxlint"
+    "oxlint",
+    "workerd"
   ],
   "cSpell.words": [
     "Alla",

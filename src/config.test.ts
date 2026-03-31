@@ -1,6 +1,6 @@
 import { Temporal } from "temporal-polyfill";
 import { describe, expect, it } from "vitest";
-import { getConfig } from "./config.js";
+import { ConfigError, MAX_YEAR_OFFSET, getConfig } from "./config.js";
 
 const currentYear = Temporal.Now.plainDateISO().year;
 
@@ -8,19 +8,19 @@ describe("getConfig", () => {
   describe("year range", () => {
     it("uses default values when env vars are not set", () => {
       const config = getConfig({});
-      expect(config.startYear).toBe(currentYear - 3);
-      expect(config.endYear).toBe(currentYear + 7);
+      expect(config.startYear).toBe(currentYear - 1);
+      expect(config.endYear).toBe(currentYear + 5);
     });
 
     it("uses provided YEARS_BACK", () => {
       const config = getConfig({ YEARS_BACK: "5" });
       expect(config.startYear).toBe(currentYear - 5);
-      expect(config.endYear).toBe(currentYear + 7);
+      expect(config.endYear).toBe(currentYear + 5);
     });
 
     it("uses provided YEARS_FORWARD", () => {
       const config = getConfig({ YEARS_FORWARD: "10" });
-      expect(config.startYear).toBe(currentYear - 3);
+      expect(config.startYear).toBe(currentYear - 1);
       expect(config.endYear).toBe(currentYear + 10);
     });
 
@@ -34,6 +34,32 @@ describe("getConfig", () => {
       const config = getConfig({ YEARS_BACK: "0", YEARS_FORWARD: "0" });
       expect(config.startYear).toBe(currentYear);
       expect(config.endYear).toBe(currentYear);
+    });
+
+    it("accepts the maximum supported values", () => {
+      const config = getConfig({
+        YEARS_BACK: String(MAX_YEAR_OFFSET),
+        YEARS_FORWARD: String(MAX_YEAR_OFFSET),
+      });
+      expect(config.startYear).toBe(currentYear - MAX_YEAR_OFFSET);
+      expect(config.endYear).toBe(currentYear + MAX_YEAR_OFFSET);
+    });
+
+    it.each([
+      { key: "YEARS_BACK", value: "abc" },
+      { key: "YEARS_BACK", value: "10abc" },
+      { key: "YEARS_BACK", value: "-1" },
+      { key: "YEARS_BACK", value: "1.5" },
+      { key: "YEARS_BACK", value: "" },
+      { key: "YEARS_BACK", value: String(MAX_YEAR_OFFSET + 1) },
+      { key: "YEARS_FORWARD", value: "abc" },
+      { key: "YEARS_FORWARD", value: "10abc" },
+      { key: "YEARS_FORWARD", value: "-1" },
+      { key: "YEARS_FORWARD", value: "1.5" },
+      { key: "YEARS_FORWARD", value: "" },
+      { key: "YEARS_FORWARD", value: String(MAX_YEAR_OFFSET + 1) },
+    ])("rejects invalid $key value '$value'", ({ key, value }) => {
+      expect(() => getConfig({ [key]: value })).toThrowError(ConfigError);
     });
   });
 
@@ -143,6 +169,24 @@ describe("getConfig", () => {
       const config = getConfig({}, params);
       expect(config.includeSundays).toBe(true);
       expect(config.skipWeekends).toBe(true);
+    });
+
+    it("uses a valid query value even when the env value is invalid", () => {
+      const config = getConfig({ YEARS_BACK: "invalid" }, query({ years_back: "2" }));
+      expect(config.startYear).toBe(currentYear - 2);
+    });
+
+    it("rejects an invalid query value even when the env value is valid", () => {
+      expect(() => getConfig({ YEARS_BACK: "2" }, query({ years_back: "invalid" }))).toThrowError(
+        ConfigError,
+      );
+    });
+
+    it("rejects invalid numeric query parameters", () => {
+      expect(() => getConfig({}, query({ years_forward: "1.5" }))).toThrowError(ConfigError);
+      expect(() => getConfig({}, query({ years_back: String(MAX_YEAR_OFFSET + 1) }))).toThrowError(
+        ConfigError,
+      );
     });
   });
 });

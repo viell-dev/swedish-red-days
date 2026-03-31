@@ -4,8 +4,8 @@
   "main": "src/main.ts",
   "compatibility_date": "2025-03-31",
   "vars": {
-    "YEARS_BACK": "3",
-    "YEARS_FORWARD": "7",
+    "YEARS_BACK": "1",
+    "YEARS_FORWARD": "5",
     "INCLUDE_SUNDAYS": "false",
     "SKIP_WEEKENDS": "false",
     "LANG": "both",

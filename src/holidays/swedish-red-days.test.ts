@@ -150,6 +150,10 @@ describe("getSwedishRedDays", () => {
 });
 
 describe("getSwedishRedDaysForRange", () => {
+  function expectChronologicalOrder(dates: string[]): void {
+    expect(dates).toEqual([...dates].sort());
+  }
+
   it("returns holidays for all years in the range (inclusive)", () => {
     const holidays = getSwedishRedDaysForRange(2024, 2026);
     expect(holidays).toHaveLength(13 * 3);
@@ -200,6 +204,11 @@ describe("getSwedishRedDaysForRange", () => {
       expect(new Set(dates).size).toBe(dates.length);
     });
 
+    it("returns holidays in chronological order when Sundays are included", () => {
+      const holidays = getSwedishRedDaysForRange(2026, 2026, { includeSundays: true });
+      expectChronologicalOrder(holidays.map((h) => h.date.toString()));
+    });
+
     it("does not add Sundays by default", () => {
       const holidays = getSwedishRedDaysForRange(2026, 2026);
       expect(holidays.filter((h) => h.name === "Sunday")).toHaveLength(0);
@@ -227,5 +236,10 @@ describe("getSwedishRedDaysForRange", () => {
       });
       expect(both).toEqual(skipped);
     });
+  });
+
+  it("returns multi-year ranges in chronological order", () => {
+    const holidays = getSwedishRedDaysForRange(2025, 2026, { includeSundays: true });
+    expectChronologicalOrder(holidays.map((h) => h.date.toString()));
   });
 });

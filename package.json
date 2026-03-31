@@ -1,12 +1,34 @@
 {
   "name": "swedish-red-days",
+  "description": "Cloudflare Worker that serves a subscribable iCal calendar of Swedish public holidays.",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/viell-dev/swedish-red-days.git"
+  },
+  "homepage": "https://github.com/viell-dev/swedish-red-days",
+  "bugs": {
+    "url": "https://github.com/viell-dev/swedish-red-days/issues"
+  },
+  "keywords": [
+    "calendar",
+    "cloudflare-workers",
+    "holidays",
+    "ical",
+    "sweden"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "lint": "oxlint && eslint .",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest"
