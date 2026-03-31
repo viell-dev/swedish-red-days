@@ -1,0 +1,47 @@
+{
+  "editor.rulers": [100, 120],
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.ts": "${capture}.test.ts",
+    "package.json": "pnpm-lock.yaml, .prettierrc, .prettierignore, eslint.config.ts, tsconfig.json"
+  },
+  "cSpell.ignorePaths": [
+    "pnpm-lock.yaml",
+    "node_modules",
+    ".wrangler",
+    "dist"
+  ],
+  "cSpell.ignoreWords": [
+    "DTSTART",
+    "PRODID",
+    "VCALENDAR",
+    "VEVENT",
+    "ical",
+    "oxlint"
+  ],
+  "cSpell.words": [
+    "Alla",
+    "allmänna",
+    "Annandag",
+    "dagar",
+    "Första",
+    "helgdagar",
+    "helgons",
+    "himmelsfärdsdag",
+    "Juldagen",
+    "Långfredagen",
+    "Meeus",
+    "metonic",
+    "Midsommardagen",
+    "nationaldag",
+    "Nyårsdagen",
+    "påsk",
+    "Påskdagen",
+    "Pingstdagen",
+    "röda",
+    "Söndag",
+    "Svenska",
+    "Sveriges",
+    "Trettondedag"
+  ]
+}

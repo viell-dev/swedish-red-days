@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "swedish-red-days",
+  "main": "src/main.ts",
+  "compatibility_date": "2025-03-31",
+  "vars": {
+    "YEARS_BACK": "3",
+    "YEARS_FORWARD": "7",
+    "INCLUDE_SUNDAYS": "false",
+    "SKIP_WEEKENDS": "false",
+    "LANG": "both",
+  },
+}
