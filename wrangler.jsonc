@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "swedish-red-days",
   "main": "src/main.ts",
-  "compatibility_date": "2025-03-31",
+  "compatibility_date": "2026-07-01",
   "vars": {
     "YEARS_BACK": "1",
     "YEARS_FORWARD": "5",
