@@ -8,6 +8,18 @@ const calendarNames: Record<Lang, string> = {
   both: "Svenska röda dagar — Swedish Red Days",
 };
 
+/**
+ * Stable UID derived from date and English name, so calendar clients can
+ * match events across refreshes instead of duplicating them.
+ */
+function eventId(holiday: Holiday): string {
+  const slug = holiday.name
+    .toLowerCase()
+    .replaceAll(/[^a-z0-9]+/g, "-")
+    .replaceAll(/^-|-$/g, "");
+  return `${holiday.date.toString()}-${slug}@swedish-red-days`;
+}
+
 function formatSummary(holiday: Holiday, lang: Lang): string {
   switch (lang) {
     case "swedish":
@@ -28,6 +40,7 @@ export function buildCalendar(holidays: Holiday[], lang: Lang = "both"): string 
 
   for (const holiday of holidays) {
     calendar.createEvent({
+      id: eventId(holiday),
       start: new Date(holiday.date.toString()),
       allDay: true,
       summary: formatSummary(holiday, lang),
