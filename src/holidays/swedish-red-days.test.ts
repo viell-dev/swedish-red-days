@@ -131,6 +131,69 @@ describe("getSwedishRedDays", () => {
     });
   });
 
+  describe("National Day / Whit Monday boundary (SFS 2004:1320)", () => {
+    it("includes Whit Monday and not National Day through 2004", () => {
+      for (const year of [2001, 2002, 2003, 2004]) {
+        const names = getSwedishRedDays(year).map((h) => h.name);
+        expect(names, `${year}`).toContain("Whit Monday");
+        expect(names, `${year}`).not.toContain("National Day");
+      }
+    });
+
+    it("includes National Day and not Whit Monday from 2005", () => {
+      for (const year of [2005, 2006, 2026]) {
+        const names = getSwedishRedDays(year).map((h) => h.name);
+        expect(names, `${year}`).toContain("National Day");
+        expect(names, `${year}`).not.toContain("Whit Monday");
+      }
+    });
+
+    it("returns known Whit Monday dates (Easter + 50 days, always a Monday)", () => {
+      const cases: [number, string][] = [
+        [2000, "2000-06-12"],
+        [2001, "2001-06-04"],
+        [2002, "2002-05-20"],
+        [2003, "2003-06-09"],
+        [2004, "2004-05-31"],
+      ];
+
+      for (const [year, expected] of cases) {
+        const whitMonday = getSwedishRedDays(year).find((h) => h.name === "Whit Monday")!;
+        expect(whitMonday.date.toString(), `Whit Monday ${year}`).toBe(expected);
+        expect(whitMonday.date.dayOfWeek, `Whit Monday ${year} should be Monday`).toBe(1);
+      }
+    });
+
+    it("uses the Swedish name Annandag pingst", () => {
+      const whitMonday = getSwedishRedDays(2004).find((h) => h.name === "Whit Monday")!;
+      expect(whitMonday.swedishName).toBe("Annandag pingst");
+    });
+
+    it("keeps 13 holidays per year on both sides of the boundary", () => {
+      expect(getSwedishRedDays(2004)).toHaveLength(13);
+      expect(getSwedishRedDays(2005)).toHaveLength(13);
+    });
+
+    it("keeps 2004 in the expected name order", () => {
+      const names = getSwedishRedDays(2004).map((h) => h.name);
+      expect(names).toEqual([
+        "New Year's Day",
+        "Epiphany",
+        "Good Friday",
+        "Easter Sunday",
+        "Easter Monday",
+        "May Day",
+        "Ascension Day",
+        "Whit Sunday",
+        "Whit Monday",
+        "Midsummer Day",
+        "All Saints' Day",
+        "Christmas Day",
+        "Second Day of Christmas",
+      ]);
+    });
+  });
+
   it("has Swedish names for all holidays", () => {
     const holidays = getSwedishRedDays(2026);
     for (const holiday of holidays) {
@@ -235,6 +298,43 @@ describe("getSwedishRedDaysForRange", () => {
         skipWeekends: true,
       });
       expect(both).toEqual(skipped);
+    });
+  });
+
+  describe("2004/2005 boundary", () => {
+    it("switches from Whit Monday to National Day across the boundary", () => {
+      const holidays = getSwedishRedDaysForRange(2004, 2005);
+      const whitMondays = holidays.filter((h) => h.name === "Whit Monday");
+      const nationalDays = holidays.filter((h) => h.name === "National Day");
+
+      expect(whitMondays.map((h) => h.date.toString())).toEqual(["2004-05-31"]);
+      expect(nationalDays.map((h) => h.date.toString())).toEqual(["2005-06-06"]);
+      expect(holidays).toHaveLength(13 * 2);
+    });
+
+    it("never removes Whit Monday when skipping weekends", () => {
+      const holidays = getSwedishRedDaysForRange(2000, 2004, { skipWeekends: true });
+      expect(holidays.filter((h) => h.name === "Whit Monday")).toHaveLength(5);
+    });
+
+    it("removes National Day with skipWeekends when June 6 falls on a weekend", () => {
+      // June 6 2009 is a Saturday, June 6 2010 is a Sunday, June 6 2011 is a Monday
+      const names2009 = getSwedishRedDaysForRange(2009, 2009, { skipWeekends: true });
+      const names2010 = getSwedishRedDaysForRange(2010, 2010, { skipWeekends: true });
+      const names2011 = getSwedishRedDaysForRange(2011, 2011, { skipWeekends: true });
+
+      expect(names2009.map((h) => h.name)).not.toContain("National Day");
+      expect(names2010.map((h) => h.name)).not.toContain("National Day");
+      expect(names2011.map((h) => h.name)).toContain("National Day");
+    });
+
+    it("does not duplicate Whit Sunday when Sundays are included pre-2005", () => {
+      const holidays = getSwedishRedDaysForRange(2004, 2004, { includeSundays: true });
+      const dates = holidays.map((h) => h.date.toString());
+      expect(new Set(dates).size).toBe(dates.length);
+
+      const whitSunday = holidays.find((h) => h.name === "Whit Sunday")!;
+      expect(whitSunday.date.toString()).toBe("2004-05-30");
     });
   });
 

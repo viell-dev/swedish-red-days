@@ -2,6 +2,12 @@ import { Temporal } from "temporal-polyfill";
 import type { Holiday } from "./types.js";
 import { getEasterSunday } from "./easter.js";
 
+/**
+ * Sweden's National Day became a public holiday in 2005, replacing Whit Monday,
+ * which was a public holiday through 2004 (SFS 2004:1320).
+ */
+const NATIONAL_DAY_FIRST_YEAR = 2005;
+
 /** Find the next Saturday on or after a given date. */
 function nextSaturday(date: Temporal.PlainDate): Temporal.PlainDate {
   // Temporal: dayOfWeek 1=Mon, 2=Tue, ..., 6=Sat, 7=Sun
@@ -12,6 +18,19 @@ function nextSaturday(date: Temporal.PlainDate): Temporal.PlainDate {
 /** Returns all Swedish public holidays ("red days") for a given year. */
 export function getSwedishRedDays(year: number): Holiday[] {
   const easter = getEasterSunday(year);
+
+  const nationalDayOrWhitMonday: Holiday =
+    year < NATIONAL_DAY_FIRST_YEAR
+      ? {
+          name: "Whit Monday",
+          swedishName: "Annandag pingst",
+          date: easter.add({ days: 50 }),
+        }
+      : {
+          name: "National Day",
+          swedishName: "Sveriges nationaldag",
+          date: new Temporal.PlainDate(year, 6, 6),
+        };
 
   return [
     {
@@ -54,11 +73,7 @@ export function getSwedishRedDays(year: number): Holiday[] {
       swedishName: "Pingstdagen",
       date: easter.add({ days: 49 }),
     },
-    {
-      name: "National Day",
-      swedishName: "Sveriges nationaldag",
-      date: new Temporal.PlainDate(year, 6, 6),
-    },
+    nationalDayOrWhitMonday,
     {
       name: "Midsummer Day",
       swedishName: "Midsommardagen",
