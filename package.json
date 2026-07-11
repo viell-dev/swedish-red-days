@@ -1,7 +1,7 @@
 {
   "name": "swedish-red-days",
   "description": "Cloudflare Worker that serves a subscribable iCal calendar of Swedish public holidays.",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "packageManager": "pnpm@10.32.1",
   "license": "GPL-3.0-only",
