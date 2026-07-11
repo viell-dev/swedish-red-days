@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getEasterSunday } from "./easter.js";
+import { getEasterSunday } from "../../src/holidays/easter.js";
 
 describe("getEasterSunday", () => {
   // Known Easter dates from multiple sources

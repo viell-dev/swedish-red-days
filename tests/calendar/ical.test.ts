@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
 import { Temporal } from "temporal-polyfill";
-import type { Holiday } from "../holidays/types.js";
-import { getSwedishRedDaysForRange } from "../holidays/swedish-red-days.js";
-import { buildCalendar } from "./ical.js";
+import { describe, expect, it } from "vitest";
+import { getSwedishRedDaysForRange } from "../../src/holidays/swedish-red-days.js";
+import type { Holiday } from "../../src/holidays/types.js";
+import { buildCalendar } from "../../src/calendar/ical.js";
 
 describe("buildCalendar", () => {
   const sampleHolidays: Holiday[] = [

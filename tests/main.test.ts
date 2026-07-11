@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import worker from "./main.js";
-import type { Env } from "./config.js";
+import worker from "../src/main.js";
+import type { Env } from "../src/config.js";
 
 describe("worker fetch", () => {
   async function fetchCalendar(url: string, env: Env = {}): Promise<Response> {

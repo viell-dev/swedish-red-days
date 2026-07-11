@@ -1,6 +1,6 @@
 import { Temporal } from "temporal-polyfill";
 import { describe, expect, it, vi } from "vitest";
-import { ConfigError, MAX_YEAR_OFFSET, getConfig } from "./config.js";
+import { ConfigError, MAX_YEAR_OFFSET, getConfig } from "../src/config.js";
 
 const currentYear = Temporal.Now.plainDateISO("Europe/Stockholm").year;
 
