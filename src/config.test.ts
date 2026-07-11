@@ -1,8 +1,8 @@
 import { Temporal } from "temporal-polyfill";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { ConfigError, MAX_YEAR_OFFSET, getConfig } from "./config.js";
 
-const currentYear = Temporal.Now.plainDateISO().year;
+const currentYear = Temporal.Now.plainDateISO("Europe/Stockholm").year;
 
 describe("getConfig", () => {
   describe("year range", () => {
@@ -34,6 +34,19 @@ describe("getConfig", () => {
       const config = getConfig({ YEARS_BACK: "0", YEARS_FORWARD: "0" });
       expect(config.startYear).toBe(currentYear);
       expect(config.endYear).toBe(currentYear);
+    });
+
+    it("anchors the year range to Sweden's current year, not UTC", () => {
+      // 23:30 UTC on New Year's Eve is already the next year in Stockholm (UTC+1)
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-12-31T23:30:00Z"));
+      try {
+        const config = getConfig({ YEARS_BACK: "0", YEARS_FORWARD: "0" });
+        expect(config.startYear).toBe(2027);
+        expect(config.endYear).toBe(2027);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it("accepts the maximum supported values", () => {

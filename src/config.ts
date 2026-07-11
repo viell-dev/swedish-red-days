@@ -2,6 +2,11 @@ import { Temporal } from "temporal-polyfill";
 
 export const DEFAULT_YEARS_BACK = 1;
 export const DEFAULT_YEARS_FORWARD = 5;
+/**
+ * The holiday rules are accurate from 1953 (Saturday rules for Midsummer Day
+ * and All Saints' Day) onward, so 25 years back can never reach an
+ * inaccurate year.
+ */
 export const MAX_YEAR_OFFSET = 25;
 
 export interface Env {
@@ -65,7 +70,8 @@ function resolve(
 }
 
 export function getConfig(env: Env, query: URLSearchParams = new URLSearchParams()): Config {
-  const currentYear = Temporal.Now.plainDateISO().year;
+  // The year range is anchored to the current year in Sweden, not UTC.
+  const currentYear = Temporal.Now.plainDateISO("Europe/Stockholm").year;
   const yearsBack = parseYearOffset(
     resolve(query, env.YEARS_BACK, "years_back"),
     "years_back",
