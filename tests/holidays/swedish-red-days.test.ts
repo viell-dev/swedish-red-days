@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { Temporal } from "temporal-polyfill";
-import { getSwedishRedDays, getSwedishRedDaysForRange } from "./swedish-red-days.js";
+import {
+  getSwedishRedDays,
+  getSwedishRedDaysForRange,
+} from "../../src/holidays/swedish-red-days.js";
 
 describe("getSwedishRedDays", () => {
   it("returns 13 holidays per year", () => {

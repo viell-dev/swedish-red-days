@@ -23,9 +23,12 @@ src/
     swedish-red-days.ts # All 13 Swedish public holidays per year
   calendar/
     ical.ts             # Converts Holiday[] to iCal string
+tests/                  # Mirrors src/ with *.test.ts files
+docs/                   # Holiday date math and legal background
 ```
 
-Test files are co-located with their source files as `*.test.ts`.
+Test files live in `tests/`, mirroring the `src/` layout (e.g. `src/config.ts` is tested by
+`tests/config.test.ts`).
 
 ## Conventions
 
