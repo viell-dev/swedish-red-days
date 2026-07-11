@@ -5,6 +5,9 @@ helgdagar_). In Sweden these are colloquially known as "red days" (_röda dagar_
 traditional color on printed calendars. The calendar dynamically generates events for a configurable
 range of years around the current date.
 
+The holidays follow [Lag (1989:253) om allmänna helgdagar](https://www.riksdagen.se/sv/dokument-och-lagar/dokument/svensk-forfattningssamling/lag-1989253-om-allmanna-helgdagar_sfs-1989-253/),
+including its historical amendment: see [Historical Accuracy](#historical-accuracy) below.
+
 Current live URL: `https://swedish-red-days.me-cloudflare-447.workers.dev/`
 
 ## Included Holidays
@@ -19,13 +22,23 @@ Current live URL: `https://swedish-red-days.me-cloudflare-447.workers.dev/`
 | Första maj             | May Day                 | May 1                         |
 | Kristi himmelsfärdsdag | Ascension Day           | Easter + 39 days              |
 | Pingstdagen            | Whit Sunday             | Easter + 49 days              |
-| Sveriges nationaldag   | National Day            | June 6                        |
+| Annandag pingst        | Whit Monday             | Easter + 50 days (until 2004) |
+| Sveriges nationaldag   | National Day            | June 6 (from 2005)            |
 | Midsommardagen         | Midsummer Day           | Saturday between Jun 20–26    |
 | Alla helgons dag       | All Saints' Day         | Saturday between Oct 31–Nov 6 |
 | Juldagen               | Christmas Day           | December 25                   |
 | Annandag jul           | Second Day of Christmas | December 26                   |
 
-Easter is calculated using the Anonymous Gregorian algorithm (Meeus/Jones/Butcher).
+Easter is calculated using the Anonymous Gregorian algorithm (Meeus/Jones/Butcher). The date rules
+for every holiday are explained in [docs/holiday-math.md](docs/holiday-math.md).
+
+## Historical Accuracy
+
+Sweden's National Day became a public holiday in 2005, replacing Whit Monday (SFS 2004:1320). The
+calendar applies this boundary exactly: requested years up to and including 2004 contain Whit
+Monday and no National Day, years from 2005 the reverse. Every year the API can emit uses the
+holiday rules that were legally in force that year. See
+[docs/legal-background.md](docs/legal-background.md) for the full legal history.
 
 ## Prerequisites
 
@@ -73,7 +86,8 @@ After deployment, verify the response in a browser or with a calendar client aga
 https://swedish-red-days.me-cloudflare-447.workers.dev/
 ```
 
-If a custom domain is added later, the Worker URL remains a valid fallback endpoint.
+A scheduled workflow verifies the live endpoint weekly, so a broken deployment does not go
+unnoticed between releases.
 
 ## Configuration
 
@@ -85,14 +99,11 @@ If a custom domain is added later, the Worker URL remains a valid fallback endpo
 | `SKIP_WEEKENDS`   | `false` | Exclude holidays that fall on a Saturday or Sunday |
 | `LANG`            | `both`  | Event names: `english`, `swedish`, or `both`       |
 
-Booleans accept `true`/`1`/no value for true, anything else is false (no value applies to query
-parameters only, e.g. `?skip_weekends`). `SKIP_WEEKENDS` supersedes `INCLUDE_SUNDAYS` when weekends
-are skipped, Sundays are never included.
+The year range is relative to the current year in Sweden (`Europe/Stockholm`), so `YEARS_BACK=1`
+and `YEARS_FORWARD=5` produce a seven-year calendar centered near today.
 
-`YEARS_BACK` and `YEARS_FORWARD` must be integers in the range `0..25`. Invalid values return
-`400 Bad Request`.
-
-Defaults are set in `wrangler.jsonc` under `vars`. For local overrides, create a `.dev.vars` file:
+Defaults are set in `wrangler.jsonc` under `vars`. For local overrides during development, create
+a `.dev.vars` file:
 
 ```
 YEARS_BACK=5
@@ -102,22 +113,36 @@ LANG=swedish
 
 You can copy `.dev.vars.example` as a starting point.
 
-All settings can also be overridden per-request via query parameters (lowercase,
-underscore-separated):
+## API Contract
+
+Every setting can also be overridden per-request via query parameters (lowercase,
+underscore-separated), so different subscription URLs give different filtered calendars:
 
 ```
 https://swedish-red-days.me-cloudflare-447.workers.dev/?lang=english&skip_weekends&years_back=1
 ```
 
-That means you can subscribe to different filtered calendars by using different subscription URLs.
+The contract:
 
-Example invalid request:
+- Query parameters take precedence over environment variables, which take precedence over
+  built-in defaults.
+- `years_back` and `years_forward` must be integers in `0..25`. Any other value (including empty,
+  negative, or fractional) returns `400 Bad Request` with a plain-text error naming the parameter:
 
-```text
-https://swedish-red-days.me-cloudflare-447.workers.dev/?years_back=1.5
-```
+  ```text
+  https://swedish-red-days.me-cloudflare-447.workers.dev/?years_back=1.5
+  ```
 
-This returns `400 Bad Request`.
+- `lang` accepts `english`, `swedish`, or `both` (case-insensitive); any other value falls back to
+  `both`.
+- Boolean parameters treat valueless (`?skip_weekends`), `true`, and `1` as true; anything else is
+  false.
+- `skip_weekends` supersedes `include_sundays` — when weekends are skipped, Sundays are never
+  included.
+- Successful responses are `text/calendar; charset=utf-8` with
+  `Cache-Control: public, max-age=86400`, so results may be up to a day old.
+- Events are all-day events with stable UIDs derived from date and holiday name, so calendar
+  clients update events across refreshes instead of duplicating them.
 
 ## Calendar Subscription
 
@@ -137,11 +162,3 @@ This project is licensed under GPLv3 only. See [`COPYING.md`](COPYING.md).
 ## Changelog
 
 Release notes live in [`CHANGELOG.md`](CHANGELOG.md).
-
-## Linting & Formatting
-
-```sh
-pnpm run lint          # oxlint + eslint
-pnpm run typecheck     # tsc --noEmit
-pnpm run format        # prettier --write
-```

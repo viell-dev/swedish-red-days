@@ -54,11 +54,22 @@ Test files live in `tests/`, mirroring the `src/` layout (e.g. `src/config.ts` i
 - `SKIP_WEEKENDS` supersedes `INCLUDE_SUNDAYS`.
 - Avoid changing holiday names or date rules without updating tests and README examples.
 
+## CI and Workflows
+
+- `.github/workflows/ci.yml` runs lint, typecheck, and tests on every push and pull request.
+- `.github/workflows/smoke.yml` verifies the live endpoint on a weekly schedule: correct
+  `Content-Type`, expected events for the current year, and `400` on invalid input. It can also be
+  run manually from the GitHub Actions tab or with `gh workflow run smoke.yml`.
+- `pnpm run format` applies Prettier to the whole repo; CI checks do not enforce or apply
+  formatting.
+
 ## Working Rules
 
 - Update co-located tests with every behavior change.
 - Run `pnpm run lint`, `pnpm run typecheck`, and `pnpm test` before considering work complete.
 - Keep `README.md` in sync with the public API, deployment URL, and configuration behavior.
+- Keep `README.md` end-user facing (subscribers and self-hosters). Contributor and operational
+  notes such as CI details, workflow dispatch, and tooling internals belong in this file instead.
 - Keep release-facing docs such as `COPYING.md`, `CHANGELOG.md`, and `.dev.vars.example` in sync
   when relevant.
 - Do not edit generated or dependency directories such as `.wrangler/` or `node_modules/`.
