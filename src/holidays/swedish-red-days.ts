@@ -32,6 +32,8 @@ export function getSwedishRedDays(year: number): Holiday[] {
           date: new Temporal.PlainDate(year, 6, 6),
         };
 
+  // National Day can precede Whit Sunday when Easter falls late (e.g. 2025),
+  // so the fixed listing order is not always chronological.
   return [
     {
       name: "New Year's Day",
@@ -94,7 +96,7 @@ export function getSwedishRedDays(year: number): Holiday[] {
       swedishName: "Annandag jul",
       date: new Temporal.PlainDate(year, 12, 26),
     },
-  ];
+  ].sort((left, right) => Temporal.PlainDate.compare(left.date, right.date));
 }
 
 /** Returns all Sundays in a given year. */

@@ -194,6 +194,17 @@ describe("getSwedishRedDays", () => {
     });
   });
 
+  it("returns holidays in chronological order even when Easter falls late", () => {
+    // Easter 2025 is April 20, pushing Whit Sunday (June 8) past National Day
+    const names2025 = getSwedishRedDays(2025).map((h) => h.name);
+    expect(names2025.indexOf("National Day")).toBeLessThan(names2025.indexOf("Whit Sunday"));
+
+    for (let year = 2000; year <= 2050; year++) {
+      const dates = getSwedishRedDays(year).map((h) => h.date.toString());
+      expect(dates, `${year}`).toEqual([...dates].sort());
+    }
+  });
+
   it("has Swedish names for all holidays", () => {
     const holidays = getSwedishRedDays(2026);
     for (const holiday of holidays) {
